@@ -8,11 +8,12 @@ export default class Clay extends DisplayObject {
         super();
         this.scaleX = 1;
         this.scaleY = 1;
-        let numberOfClayElements = 3;
-        this.claySize = Black.stage.bounds.width / (numberOfClayElements + 2);
+        this.numberOfClayElements = 3;
+        this.claySize = Black.stage.bounds.width / (this.numberOfClayElements + 2);
         this.visible = false;
-        this.selectedClay = null;
+
         this.onClaySelectEvent = 'onClaySelectEvent';
+        this.selectedClay = null;
 
     }
 
@@ -85,14 +86,23 @@ export default class Clay extends DisplayObject {
         this._hand.tap();
     }
 
+
     hide() {
+        this._hand.visible = false;
+
         const hideTween = new Tween({
             y: Black.stage.bounds.bottom + 250
         }, 0.2);
 
-        this.add(hideTween);
 
-        hideTween.on('complete', msg => this.visible = false);
+        setTimeout(() => {
+            this.add(hideTween);
+
+            setTimeout(() => {
+                hideTween.on('complete', msg => this.visible = false);
+            }, 600)
+        }, 400)
+
     }
 
     _stopHint() {
@@ -113,8 +123,9 @@ export default class Clay extends DisplayObject {
             const maxY = this.positionY - this.claySize;
 
             if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
-                this.selectedClay = this._container.mChildren[i];
+                this.selectedClay = i;
                 this.post(this.onClaySelectEvent, this.selectedClay);
+                this.hide();
             }
         }
     };

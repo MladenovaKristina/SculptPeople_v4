@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import Helpers from "../../helpers/helpers";
-import Layout3d from "./3d-layout";
 
 export default class SceneController extends THREE.Object3D {
     constructor(scene, layout2d) {
@@ -8,14 +7,8 @@ export default class SceneController extends THREE.Object3D {
         this._scene = scene;
         this._layout2d = layout2d;
 
-        this._initLayout3d();
         this.selectClayScene()
 
-    }
-
-    _initLayout3d() {
-        this._layout3d = new Layout3d();
-        this._scene.add(this._layout3d);
     }
 
     selectClayScene() {
@@ -23,8 +16,8 @@ export default class SceneController extends THREE.Object3D {
         this._layout2d.showClay();
     }
 
-    morphClayScene() {
-        console.log("scene1, morph")
+    morphClayScene(clay) {
+        console.log("scene1, morph selected clay index", clay)
     }
     paintScene() {
         console.log("scene2, paint")

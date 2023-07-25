@@ -13,7 +13,7 @@ export default class Game {
 
     this.messageDispatcher = new MessageDispatcher();
     this.onFinishEvent = 'onFinishEvent';
-    this.onClaySelectedEvent = 'onClaySelectedEvent';
+    this.onClaySelectEvent = 'onClaySelectEvent';
 
     this._scene = scene;
     this._camera = camera;
@@ -63,7 +63,8 @@ export default class Game {
       this.messageDispatcher.post(this.onFinishEvent);
     });
 
-    this._layout2d.on(this._layout2d.onClaySelectedEvent, (msg, selectedClay) => {
+    this._layout2d.on(this._layout2d.onClaySelectEvent, (msg, selectedClay) => {
+
       this._sceneController.morphClayScene(selectedClay);
     });
   }

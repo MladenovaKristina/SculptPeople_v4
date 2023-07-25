@@ -79,11 +79,12 @@ export default class Layout2D extends DisplayObject {
     this.add(this._clay);
 
     this._clay.on(this._clay.onClaySelectEvent, (msg, selectedClay) => {
-      this.post(this.onClaySelectEvent);
+      this.post(this.onClaySelectEvent, selectedClay);
     });
   }
 
   showClay() { this._clay.show(); }
+  hideClay() { this._clay.hide(); }
 
   _createEndscreen() {
     const endscreen = this._endScreen = new Endscreen();
