@@ -83,8 +83,8 @@ export default class Layout2D extends DisplayObject {
   }
 
   showClay() { this._clay.show(); }
-  hideClay() {
-    this._clay.hide();
+  hideClay(callback) {
+    this._clay.hide(() => { callback() });
   }
 
   _createEndscreen() {

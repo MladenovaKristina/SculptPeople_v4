@@ -2,7 +2,7 @@ import * as THREE from "three";
 import Helpers from "../../helpers/helpers";
 import { ColorScatter } from "../../../utils/black-engine.module";
 
-export default class Character extends THREE.Object3D {
+export default class Assets extends THREE.Object3D {
     constructor(scene) {
         super();
         this._scene = scene;
