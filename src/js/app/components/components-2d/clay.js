@@ -19,20 +19,21 @@ export default class Clay extends DisplayObject {
 
     onAdded() {
         const bb = Black.stage.bounds;
+        let offset = (bb.width / (this.numberOfClayElements + 2)) / this.numberOfClayElements, spacing = (bb.width - (this.numberOfClayElements * this.claySize)) / this.numberOfClayElements;
+
         this._container = new Graphics();
         this._container.fillStyle(0x000000, 0);
         this._container.rect(0, 0, bb.width, bb.height);
         this._container.fill();
         this.add(this._container);
-        let offset = 0;
         this.position = [];
         this.positionY = bb.height / 2 - 200;
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < this.numberOfClayElements; i++) {
             const clay = new Graphics();
             clay.fillStyle(0x000000, 1);
-            clay.roundedRect(bb.width / 1.5 - offset, this.positionY, this.claySize, this.claySize, 30);
+            clay.roundedRect(0 + offset, this.positionY, this.claySize, this.claySize, 30);
             clay.fill();
-            offset += this.claySize * 1.5;
+            offset += this.claySize + spacing;
             this._container.add(clay);
             this.position.push(offset)
         }
@@ -72,36 +73,29 @@ export default class Clay extends DisplayObject {
     }
 
     _makeStep(count) {
-        // Go through the children of this._container and tap on each of them
         const children = this._container.mChildren;
         console.log
         if (children.length === 0) {
-            // No active outfits, stop the hint
             this._stopHint();
             return;
         }
         const index = count() % children.length;
-        this._hand.x = this.position[index] - this.claySize / 2;
+        this._hand.x = this.position[index] - this.claySize;
         this._hand.y = this.positionY + this._hand.height / 4;
         this._hand.tap();
     }
 
 
     hide() {
-        this._hand.visible = false;
 
         const hideTween = new Tween({
             y: Black.stage.bounds.bottom + 250
         }, 0.2);
 
 
-        setTimeout(() => {
-            this.add(hideTween);
+        this.add(hideTween);
 
-            setTimeout(() => {
-                hideTween.on('complete', msg => this.visible = false);
-            }, 600)
-        }, 400)
+        hideTween.on('complete', msg => this.visible = false);
 
     }
 
@@ -111,21 +105,24 @@ export default class Clay extends DisplayObject {
     }
 
     onDown(x, y) {
-        this.getObjectAtPosition(x, y);
+        this._hand.visible = false;
+
+        const blackPos = Black.stage.worldTransformationInverted.transformVector({ x, y });
+
+        this.getObjectAtPosition(blackPos.x, blackPos.y);
     }
 
     getObjectAtPosition(x, y) {
-
         for (let i = 0; i < this.position.length; i++) {
-            const minX = this.position[i] - this.claySize;
-            const maxX = this.position[i] + this.claySize;
+            const minX = this.position[i] - this.claySize * 2;
+            const maxX = this.position[i];
             const minY = this.positionY - this.claySize * 2;
             const maxY = this.positionY - this.claySize;
 
             if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
+
                 this.selectedClay = i;
                 this.post(this.onClaySelectEvent, this.selectedClay);
-                this.hide();
             }
         }
     };

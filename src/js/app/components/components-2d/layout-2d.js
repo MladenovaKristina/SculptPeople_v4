@@ -49,7 +49,6 @@ export default class Layout2D extends DisplayObject {
     this._topText.x = bb.left;
     this._topText.y = bb.top + Number(ConfigurableParams.getData()["top_text"]["top_title_offset"]["value"]);
 
-    this._clay.x = bb.left;
     this._clay.y = bb.top;
     this._refPhoto.x = bb.left + Number(ConfigurableParams.getData()["reference_photo"]["offset"]["x"]);
     this._refPhoto.y = bb.top + Number(ConfigurableParams.getData()["reference_photo"]["offset"]["y"]);
@@ -84,7 +83,9 @@ export default class Layout2D extends DisplayObject {
   }
 
   showClay() { this._clay.show(); }
-  hideClay() { this._clay.hide(); }
+  hideClay() {
+    this._clay.hide();
+  }
 
   _createEndscreen() {
     const endscreen = this._endScreen = new Endscreen();
@@ -124,7 +125,6 @@ export default class Layout2D extends DisplayObject {
 
     // this._tutorial.hide();
     this._endScreen.onDown(blackPos.x, blackPos.y);
-    this._clay.onDown(blackPos.x, blackPos.y);
   }
 
   onMove(x, y) {

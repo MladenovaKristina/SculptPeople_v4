@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import Helpers from "../../helpers/helpers";
+import Layout3d from "./3d-layout";
+import { Black } from '../../../utils/black-engine.module';
 
 export default class SceneController extends THREE.Object3D {
     constructor(scene, layout2d) {
@@ -8,28 +10,44 @@ export default class SceneController extends THREE.Object3D {
         this._layout2d = layout2d;
 
         this.selectClayScene()
-
+        this._initScenes();
     }
-
+    _initScenes() {
+        this._layout3d = new Layout3d();
+        this._scene.add(this._layout3d);
+    }
     selectClayScene() {
-        console.log("scene1, select clay")
+        this.sceneNumber = 0;
+        console.log(this.sceneNumber, "select clay")
         this._layout2d.showClay();
     }
 
     morphClayScene(clay) {
-        console.log("scene1, morph selected clay index", clay)
+        this.sceneNumber = 0;
+
+        this._layout2d.hideClay();
+        console.log(this.sceneNumber, " morph selected clay index", clay)
     }
     paintScene() {
-        console.log("scene2, paint")
+        this.sceneNumber = 1;
+
+        console.log(this.sceneNumber, " paint")
     }
     decorateScene() {
-        console.log("scene3, decorate")
+        this.sceneNumber = 2;
+        console.log(this.sceneNumber, " decorate")
     }
     bodyScene() {
-        console.log("scene4, body")
+        this.sceneNumber = 3;
+
+        console.log(this.sceneNumber, " body")
     }
 
     onDown(x, y) {
+        if (this.sceneNumber == 0) {
+            this._layout2d._clay.onDown(x, y);
+        }
+
         // console.log("down", x, y)
     };
     onUp() {
