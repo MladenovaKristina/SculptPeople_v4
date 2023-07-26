@@ -7,6 +7,7 @@ export default class Head extends THREE.Group {
     super();
     this._scene = scene;
     this._states = states;
+
     this.messageDispatcher = new MessageDispatcher();
     this.onPointComplete = 'onPointComplete';
 
@@ -25,11 +26,6 @@ export default class Head extends THREE.Group {
   _createMaterial() {
     this._mainMaterial = new THREE.MeshPhongMaterial({
       color: 0xff0000, specular: 0x0f0f0f
-    });
-
-    this._glassesMaterial = new THREE.MeshLambertMaterial({
-      color: 0xff0000, transparent: true,
-      opacity: 0.6
     });
   }
 
@@ -51,9 +47,12 @@ export default class Head extends THREE.Group {
       color: 0xF2BA95,
       roughness: 1,
       metalness: 0,
-      morphNormals: true,
-      morphTargets: true
+
     });
+  }
+
+  turnToClay() {
+
   }
 
 
@@ -69,13 +68,13 @@ export default class Head extends THREE.Group {
     const geo = new THREE.SphereGeometry(0.03, 32, 32);
 
     for (let key in aimPointsData) {
-      // const p = aimPointsData[key];
-      // 
-      //       const point = new THREE.Mesh(geo);
-      //       point.position.x = p.x;
-      //       point.position.y = p.y;
-      //       point.position.z = p.z;
-      //       this._scene.add(point);
+      const p = aimPointsData[key];
+
+      const point = new THREE.Mesh(geo);
+      point.position.x = p.x;
+      point.position.y = p.y;
+      point.position.z = p.z;
+      this._scene.add(point);
     }
 
     this._aimPoints = aimPointsData;

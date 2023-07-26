@@ -9,17 +9,14 @@ export default class MorphScene extends THREE.Object3D {
         this._renderer = renderer;
         this._camera = camera;
 
-        this._state = MorphScene.STATES.REYE;
         this._head = new Head(this._scene, MorphScene.STATES);
         this.add(this._head);
 
-        this._head.setState(this._state)
 
         this._stick = new Stick(this._scene);
         this.add(this._stick);
 
         this._stickController = new StickController(this._head, this._stick);
-        this._setNextAimPoint();
 
     }
 
@@ -49,20 +46,6 @@ export default class MorphScene extends THREE.Object3D {
         if (this._state === MorphScene.STATES.FACE) this._stick.enableBigSwipes();
         this._stick.enableDrilling(false);
 
-    }
-
-    enableStoreMode() {
-        if (this._isStoreMode) return;
-        this._isStoreMode = true;
-
-        this._state = MorphScene.STATES.FINAL;
-
-        this._head.enableDrilling(false);
-        this._head.reset();
-
-        this._stick.enableDrilling(false);
-
-        this._stick.hide();
     }
 
     _vector3ToBlackPosition(vector) {

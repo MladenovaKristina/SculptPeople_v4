@@ -8,6 +8,7 @@ import TopText from './top-text';
 import Tutorial from './tutorial';
 import ReferencePhoto from './ref-photo';
 import Clay from './clay';
+import Dock from './dock';
 // works as a main class in 2D playables
 export default class Layout2D extends DisplayObject {
   constructor() {
@@ -39,6 +40,7 @@ export default class Layout2D extends DisplayObject {
     this._createClay();
 
     this.onResize();
+
     Black.stage.on('resize', this.onResize, this);
   }
 
@@ -86,7 +88,11 @@ export default class Layout2D extends DisplayObject {
   hideClay(callback) {
     this._clay.hide(() => { callback() });
   }
-
+  selectionUI() {
+    this._dock = new Dock();
+    this.add(this._dock);
+    this._dock.show();
+  }
   _createEndscreen() {
     const endscreen = this._endScreen = new Endscreen();
     this.add(endscreen);
@@ -133,6 +139,7 @@ export default class Layout2D extends DisplayObject {
   }
 
   onUp() {
+    this._dock.onUp();
   }
 
   enableStoreMode() {
