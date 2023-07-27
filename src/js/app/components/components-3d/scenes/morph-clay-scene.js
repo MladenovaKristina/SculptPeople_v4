@@ -2,6 +2,7 @@ import * as THREE from "three";
 import Head from "../controls/head";
 import Stick from "../controls/stick";
 import StickController from "../controls/stick-controller";
+
 export default class MorphScene extends THREE.Object3D {
     constructor(scene, renderer, camera) {
         super();
@@ -9,31 +10,31 @@ export default class MorphScene extends THREE.Object3D {
         this._renderer = renderer;
         this._camera = camera;
 
-        this._head = new Head(this._scene, MorphScene.STATES);
-        this.add(this._head);
+        this._head = new Head(this._scene);
+        this._scene.add(this._head);
 
 
-        this._stick = new Stick(this._scene);
-        this.add(this._stick);
-
-        this._stickController = new StickController(this._head, this._stick);
+        //         this._stick = new Stick(this._scene);
+        //         this.add(this._stick);
+        // 
+        //         this._stickController = new StickController(this._head, this._stick);
 
     }
 
     onUpdate(dt) {
-        this._head.onUpdate(dt);
+        // this._head.onUpdate(dt);
     }
 
     onDown(x, y) {
-        this._stickController.onDown(x, y);
+        // this._stickController.onDown(x, y);
     }
 
     onUp() {
-        this._stickController.onUp();
+        // this._stickController.onUp();
     }
 
     onMove(x, y) {
-        this._stickController.onMove(x, y);
+        // this._stickController.onMove(x, y);
     }
 
     _showCheersText() {

@@ -1,4 +1,5 @@
 import { MessageDispatcher } from "../../../../utils/black-engine.module";
+import * as TWEEN from "@tweenjs/tween.js";
 import UTween from "../../../../utils/utween";
 import * as THREE from 'three';
 
@@ -7,153 +8,115 @@ export default class Head extends THREE.Group {
     super();
     this._scene = scene;
     this._states = states;
-
-    this.messageDispatcher = new MessageDispatcher();
-    this.onPointComplete = 'onPointComplete';
-
-    this._head = null;
-    this._eyes = null;
-    this._aimPoints = {};
-
-    this._currentMorphId = 0;
-    this._mainMaterial = null;
-
-    this._createMaterial();
-    this._createView();
-    this._createAimPoints();
+    this.bumpyMesh = null;
+    this._initHead();
+    // this.unmorph();
   }
 
-  _createMaterial() {
-    this._mainMaterial = new THREE.MeshPhongMaterial({
-      color: 0xff0000, specular: 0x0f0f0f
-    });
+  _initClay() {
+
+
+    const baseGeo = new THREE.SphereGeometry(0.1, 32, 19);
+
+    // Create the bumpy sphere geometry as a morph target
+    const bumpyGeo = new THREE.SphereGeometry(0.1, 32, 19);
+
+    // Modify the vertices of bumpyGeo to create the bumpy effect
+    const vertexCount = bumpyGeo.attributes.position.count;
+    const vertices = bumpyGeo.attributes.position;
+    for (let i = 0; i < vertexCount; i++) {
+      const vertex = new THREE.Vector3();
+      vertex.fromBufferAttribute(vertices, i);
+      vertex.normalize().multiplyScalar(0.1 + Math.random() * 0.02); // Adjust the bumpiness here
+      vertices.setXYZ(i, vertex.x, vertex.y, vertex.z);
+    }
+    bumpyGeo.morphAttributes.position = [baseGeo.attributes.position]; // Set the base geometry as the morph target
+
+
+    const mat = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+    this.clay = new THREE.Mesh(bumpyGeo, mat);
+    this.clay.x = 0; this.clay.y = 0; this.clay.z = 0;
+    this._scene.add(this.clay)
+    this.clay.visible = false;
   }
 
-  _createView() {
-    this._view = new THREE.Object3D(); // Corrected: Initialize _view as a new Object3D
-    this.asset = THREE.Cache.get('assets').scene;
-    this.asset.traverse((child) => {
-      if (child.name == "HEAD") {
-        this._view = child; // Corrected: Assign child to _view
-        console.log(child.position)
+  _initHead() {
+
+    const assets = THREE.Cache.get('assets').scene;
+    let originalGeometry;
+
+    assets.traverse((child) => {
+      if (child.name === "HEAD") {
+        this._view = child;
+        for (let i = 0; i < this._view.children.length; i++) this._view.children[i].visible = false;
+        originalGeometry = child.geometry.clone()
+
       }
-    });
-    const view = this._view;
-    view.position.y = 0.07;
+    })
 
+    const view = this._view;
+    view.position.y = 0.12;
     this._scene.add(view);
 
     view.material = new THREE.MeshStandardMaterial({
       color: 0xF2BA95,
       roughness: 1,
-      metalness: 0,
+      metalness: 0
+    })
 
-    });
+    //     // Modify the vertices of the cloned geometry to create the bumpy effect
+    //     const vertexCount = originalGeometry.attributes.position.count;
+    //     const vertices = originalGeometry.attributes.position;
+    //     const radius = 0.2; // Adjust the bumpiness here
+    //     for (let i = 0; i < vertexCount; i++) {
+    //       const vertex = new THREE.Vector3();
+    //       vertex.fromBufferAttribute(vertices, i);
+    //       vertex.normalize().multiplyScalar(radius + Math.random() * 0.02); // Adjust the bumpiness here
+    // 
+    //       vertices.setXYZ(i, vertex.x, vertex.y, vertex.z);
+    //     }
+    //     this.bumpyMesh = new THREE.Mesh(originalGeometry, view.material);
+    //     this.bumpyMesh.position.set(this._view.position.x, this._view.position.y, this._view.position.z)
+    //     this.bumpyMesh.rotation.x = 1.5;
+    //     this._scene.add(this.bumpyMesh);
+
   }
 
-  turnToClay() {
-
+  _animate() {
+    requestAnimationFrame(this._animate.bind(this));
+    TWEEN.update();
   }
 
+  unmorph() {
+    this._view.visible = true;
+    console.log("morph");
 
-  _createAimPoints() {
-    const aimPointsData = {
-      rEye: new THREE.Vector3(-0.037, 0.01, 0.09),
-      lEye: new THREE.Vector3(0.034, 0.01, 0.09),
-      nose: new THREE.Vector3(0, -0.03, 0.14),
-      mouth: new THREE.Vector3(0, -0.06, 0.12),
-      face: new THREE.Vector3(0, 0.07, 0.12)
-    };
+    const tweenDuration = 10000; // 10 seconds in milliseconds
 
-    const geo = new THREE.SphereGeometry(0.03, 32, 32);
+    const originalPositions = [];
+    const morphTargetInfluences = this._view.morphTargetInfluences[0];
+    const vertexCount = this._view.geometry.attributes.position.count;
+    const vertices = this._view.geometry.attributes.position;
 
-    for (let key in aimPointsData) {
-      const p = aimPointsData[key];
-
-      const point = new THREE.Mesh(geo);
-      point.position.x = p.x;
-      point.position.y = p.y;
-      point.position.z = p.z;
-      this._scene.add(point);
+    // Store the original morphed vertex positions in an array
+    for (let i = 0; i < vertexCount; i++) {
+      const morphedPosition = new THREE.Vector3().fromBufferAttribute(morphTargetInfluences, i);
+      originalPositions.push(morphedPosition.clone());
     }
 
-    this._aimPoints = aimPointsData;
+    // Set up the Tween animation
+    const tween = new TWEEN.Tween(this.bumpyMesh.geometry.vertices)
+      .to(vertices.array, tweenDuration) // Tween the bumpyMesh vertices towards the _view mesh's vertices
+      .easing(TWEEN.Easing.Quadratic.Out) // Adjust the easing function as per your preference
+      .onUpdate(() => {
+        this.bumpyMesh.geometry.verticesNeedUpdate = true;
+      })
+      .onComplete(() => {
+        // Hide the bumpyMesh after the unmorphing is complete
+        this._view.visible = false;
+      });
+
+    tween.start();
   }
 
-  reset() {
-    new UTween(this.rotation, {
-      x: 0, y: 0, z: 0
-    }, 0.3);
-
-    this._view.morphTargetInfluences = [0, 0, 0, 0, 1];
-  }
-
-  setState(state) {
-    this._state = state;
-
-    if (state === MorphScene.STATES.REYE) {
-      this._currentMorphId = 0;
-      this._view.morphTargetInfluences[0] = 0;
-    }
-    else if (state === MorphScene.STATES.LEYE) {
-      this._currentMorphId = 1;
-      this._view.morphTargetInfluences[1] = 0;
-    }
-    else if (state === MorphScene.STATES.NOSE) {
-      this._currentMorphId = 2;
-      this._view.morphTargetInfluences[2] = 0;
-    }
-    else if (state === MorphScene.STATES.MOUTH) {
-      this._currentMorphId = 3;
-      this._view.morphTargetInfluences[3] = 0;
-    }
-    else if (state === MorphScene.STATES.FACE) {
-      this._currentMorphId = 4;
-      this._view.morphTargetInfluences[4] = 0;
-    }
-  }
-
-  enableDrilling(value) {
-    this._isDrilling = value;
-  }
-
-  onUpdate(dt) {
-    const drillValue = dt * 0.9;
-
-    if (this._isDrilling) {
-      this._view.morphTargetInfluences[this._currentMorphId] = Math.min(this._view.morphTargetInfluences[this._currentMorphId] + drillValue, 1);
-
-      if (this._currentMorphId > 0) {
-        this._view.morphTargetInfluences[this._currentMorphId - 1] = Math.max(this._view.morphTargetInfluences[this._currentMorphId - 1] - drillValue, 0);
-      }
-
-      if (this._view.morphTargetInfluences[this._currentMorphId] === 1) {
-        this.messageDispatcher.post(this.onPointComplete);
-      }
-    }
-  }
-
-  get headMesh() {
-    return [this._view];
-  }
-
-  get currentAimPoint() {
-    if (this._state === MorphScene.STATES.REYE) {
-      return this._aimPoints.rEye;
-    }
-    else if (this._state === MorphScene.STATES.LEYE) {
-      return this._aimPoints.lEye;
-    }
-    else if (this._state === MorphScene.STATES.NOSE) {
-      return this._aimPoints.nose;
-    }
-    else if (this._state === MorphScene.STATES.MOUTH) {
-      return this._aimPoints.mouth;
-    }
-    else if (this._state === MorphScene.STATES.FACE) {
-      return this._aimPoints.face;
-    }
-
-    return new THREE.Vector3();
-  }
 }

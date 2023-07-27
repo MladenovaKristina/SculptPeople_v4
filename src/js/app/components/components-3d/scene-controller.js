@@ -8,9 +8,11 @@ export default class SceneController extends THREE.Object3D {
         super();
         this._scene = scene;
         this._layout2d = layout2d;
-        this.paintScene();
-        // this.selectClayScene()
+
         this._initScenes();
+        this.paintScene();
+        // this.morphClayScene();
+        // this.selectClayScene()
     }
     _initScenes() {
         this._layout3d = new Layout3d();
@@ -31,10 +33,13 @@ export default class SceneController extends THREE.Object3D {
         console.log(this.sceneNumber, " morph selected clay index", clay)
     }
     paintScene() {
+        console.log(this.sceneNumber, " paint")
+
         this.sceneNumber = 2;
         this._layout2d.selectionUI();
-        console.log(this.sceneNumber, " paint")
     }
+
+
     decorateScene() {
         this.sceneNumber = 3;
         console.log(this.sceneNumber, " decorate")
@@ -59,7 +64,7 @@ export default class SceneController extends THREE.Object3D {
     };
     onUp() {
         if (this.sceneNumber == 1) {
-            this._layout3d._morphScene.onUp(x, y)
+            this._layout3d._morphScene.onUp()
         }
     };
     onMove(x, y) {

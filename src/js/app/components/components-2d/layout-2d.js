@@ -139,7 +139,7 @@ export default class Layout2D extends DisplayObject {
   }
 
   onUp() {
-    this._dock.onUp();
+    // this._dock.onUp();
   }
 
   enableStoreMode() {
